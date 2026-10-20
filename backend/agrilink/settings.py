@@ -40,7 +40,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # <--- CRITICAL FOR RENDER
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # CRITICAL FOR RENDER
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,10 +69,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agrilink.wsgi.application'
 
-# Database
-# Uses PostgreSQL on Render, falls back to SQLite locally
-if config('DATABASE_URL', default=None):
-    DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+# ─── DATABASE SETUP (Fixed for Render) ───
+# Get the URL, strip any hidden spaces, and default to empty string
+db_url = config('DATABASE_URL', default='').strip()
+
+if db_url:
+    DATABASES = {
+        'default': dj_database_url.config(default=db_url, conn_max_age=600)
+    }
 else:
     DATABASES = {
         'default': {
